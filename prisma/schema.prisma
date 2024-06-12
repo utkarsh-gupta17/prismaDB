@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model Student {
+  id          Int        @id @default(autoincrement())
+  firstName   String
+  lastName    String
+  dob         DateTime
+  email       String
+  department  Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  departmentId Int
+  enrollments Enrollment[]
+  created_at DateTime @default(now())
+}
+
+model Course {
+  id          Int        @id @default(autoincrement())
+  courseName  String
+  credits     Int
+  department  Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  departmentId Int
+  enrollments Enrollment[]
+  teachingAssignments TeachingAssignment[]
+  created_at DateTime @default(now())
+}
+
+model Enrollment {
+  id        Int     @id @default(autoincrement())
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId Int
+  course    Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId  Int
+  created_at DateTime @default(now())
+}
+
+model Professor {
+  id         Int        @id @default(autoincrement())
+  firstName  String
+  lastName   String
+  department Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  departmentId Int
+  teachingAssignments TeachingAssignment[]
+  created_at DateTime @default(now())
+}
+
+model Department {
+  id          Int        @id @default(autoincrement())
+  name        String
+  students    Student[]
+  courses     Course[]
+  professors  Professor[]
+  created_at DateTime @default(now())
+}
+
+model TeachingAssignment {
+  id         Int        @id @default(autoincrement())
+  professor  Professor  @relation(fields: [professorId], references: [id], onDelete: Cascade)
+  professorId Int
+  course     Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseId   Int
+  created_at DateTime @default(now())
+}
